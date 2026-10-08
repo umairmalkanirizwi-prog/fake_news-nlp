@@ -49,6 +49,7 @@ body {
 /* HERO */
 
 .hero {
+    position: relative;
     text-align: center;
     padding: 45px 25px;
     border: 1px solid #4f46e5;
@@ -87,6 +88,187 @@ body {
     border-radius: 30px;
     color: #e0e7ff;
     font-size: 13px;
+}
+
+
+.theme-toggle {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    padding: 8px 12px;
+    background: rgba(255,255,255,.12);
+    color: #e0e7ff;
+    border: 1px solid rgba(255,255,255,.2);
+    border-radius: 10px;
+    font-size: 16px;
+}
+
+.theme-toggle:hover {
+    background: rgba(255,255,255,.22);
+}
+
+.sample-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+}
+
+.sample-label {
+    color: #94a3b8;
+    font-size: 13px;
+}
+
+.sample-btn {
+    padding: 8px 14px;
+    font-size: 13px;
+    background: #1e293b;
+    color: #cbd5e1;
+    border: 1px solid #334155;
+    border-radius: 20px;
+}
+
+.sample-btn:hover {
+    border-color: #6366f1;
+    color: #e0e7ff;
+}
+
+.input-meta {
+    display: flex;
+    gap: 18px;
+    margin-top: 8px;
+    color: #64748b;
+    font-size: 12px;
+}
+
+.kbd-hint {
+    margin-left: auto;
+}
+
+.spinner {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(255,255,255,.4);
+    border-top-color: #fff;
+    border-radius: 50%;
+    vertical-align: -2px;
+    animation: spin .7s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.confidence-line {
+    font-size: 13px;
+    color: #c7d2fe;
+    margin-bottom: 16px;
+}
+
+.copy-btn {
+    margin-top: 22px;
+    padding: 10px 18px;
+    font-size: 13px;
+    background: #1e293b;
+    color: #cbd5e1;
+    border: 1px solid #334155;
+}
+
+.copy-btn:hover {
+    border-color: #6366f1;
+    color: #e0e7ff;
+}
+
+.model-note {
+    margin-top: 14px;
+    color: #64748b;
+    font-size: 12px;
+}
+
+.footer-credit {
+    font-size: 14px;
+    color: #a5b4fc;
+    letter-spacing: .5px;
+}
+
+.footer-credit strong {
+    color: #e0e7ff;
+}
+
+.footer-sub {
+    margin-top: 6px;
+}
+
+
+/* LIGHT THEME */
+
+body.light {
+    color: #0f172a;
+    background:
+        radial-gradient(circle at top left, #dbeafe 0%, transparent 32%),
+        radial-gradient(circle at bottom right, #ede9fe 0%, transparent 32%),
+        #f1f5f9;
+}
+
+body.light .main-card,
+body.light .how-card,
+body.light .info-card {
+    background: rgba(255, 255, 255, .92);
+    border-color: #cbd5e1;
+    color: #0f172a;
+}
+
+body.light .section-heading p,
+body.light .card-label,
+body.light .result-subtitle,
+body.light .step small,
+body.light .disclaimer,
+body.light .input-meta,
+body.light .sample-label,
+body.light .model-note {
+    color: #64748b;
+}
+
+body.light textarea {
+    background: #ffffff;
+    border-color: #cbd5e1;
+    color: #0f172a;
+}
+
+body.light .step {
+    background: #f8fafc;
+    border-color: #e2e8f0;
+}
+
+body.light .disclaimer {
+    background: #f8fafc;
+    border-color: #e2e8f0;
+}
+
+body.light footer {
+    color: #64748b;
+}
+
+body.light .footer-credit {
+    color: #4f46e5;
+}
+
+body.light .footer-credit strong {
+    color: #312e81;
+}
+
+body.light .confidence-line {
+    color: #4338ca;
+}
+
+body.light .clear-btn,
+body.light .sample-btn,
+body.light .copy-btn {
+    background: #e2e8f0;
+    color: #334155;
+    border-color: #cbd5e1;
 }
 
 

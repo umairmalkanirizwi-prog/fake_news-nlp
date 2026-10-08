@@ -19,6 +19,7 @@
         <div class="icon">📰</div>
 
         <h1>Fake News Detector</h1>
+        <button id="themeToggle" class="theme-toggle" title="Toggle light/dark mode">🌙</button>
 
         <p>
             NLP-Powered Fake &amp; True News Classification
@@ -64,10 +65,22 @@
             </p>
         </div>
 
+        <div class="sample-row">
+            <span class="sample-label">Try a sample:</span>
+            <button id="sampleFakeBtn" class="sample-btn">⚠️ Fake example</button>
+            <button id="sampleTrueBtn" class="sample-btn">✅ True example</button>
+        </div>
+
         <textarea
             id="newsInput"
             placeholder="Paste or type a news article here..."
         ></textarea>
+
+        <div class="input-meta">
+            <span id="charCount">0 characters</span>
+            <span id="wordCount">0 words</span>
+            <span class="kbd-hint">Ctrl + Enter to analyze</span>
+        </div>
 
         <div class="button-row">
 
@@ -95,6 +108,8 @@
 
             <div class="probability-section">
 
+                <div class="confidence-line" id="confidenceLine"></div>
+
                 <div class="probability-header">
                     <span>🚨 Fake Probability</span>
                     <strong id="fakeValue">0%</strong>
@@ -114,6 +129,12 @@
                     <div id="trueBar" class="progress true-bar"></div>
                 </div>
 
+            </div>
+
+            <button id="copyResultBtn" class="copy-btn">📋 Copy Result</button>
+
+            <div class="model-note">
+                Model: TF-IDF + Multinomial Naive Bayes • 2 classes (FAKE / TRUE)
             </div>
 
         </div>
@@ -171,7 +192,8 @@
     </section>
 
     <footer>
-        Fake News Detection Using NLP &nbsp;•&nbsp; TF-IDF + Multinomial Naive Bayes
+        <div class="footer-credit">Made by <strong>Umair Malkani</strong></div>
+        <div class="footer-sub">Fake News Detection Using NLP &nbsp;•&nbsp; TF-IDF + Multinomial Naive Bayes</div>
     </footer>
 
 </div>
@@ -195,6 +217,58 @@ const fakeValue = document.getElementById("fakeValue");
 const trueValue = document.getElementById("trueValue");
 
 const errorBox = document.getElementById("errorBox");
+const charCount = document.getElementById("charCount");
+const wordCount = document.getElementById("wordCount");
+const confidenceLine = document.getElementById("confidenceLine");
+const copyResultBtn = document.getElementById("copyResultBtn");
+const themeToggle = document.getElementById("themeToggle");
+
+const SAMPLE_FAKE = "BREAKING: Scientists confirm the moon is made of green cheese after secret NASA leak. The space agency has denied these claims, but anonymous sources insist the truth is being hidden from the public.";
+const SAMPLE_TRUE = "The central bank announced a quarter-point interest rate decision on Wednesday, citing moderating inflation and steady employment figures, in line with economists' expectations.";
+
+function updateCounts() {
+    const text = input.value;
+    const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+    charCount.textContent = `${text.length.toLocaleString()} characters`;
+    wordCount.textContent = `${words.toLocaleString()} words`;
+}
+
+input.addEventListener("input", updateCounts);
+
+document.getElementById("sampleFakeBtn").addEventListener("click", () => {
+    input.value = SAMPLE_FAKE;
+    updateCounts();
+    input.focus();
+});
+
+document.getElementById("sampleTrueBtn").addEventListener("click", () => {
+    input.value = SAMPLE_TRUE;
+    updateCounts();
+    input.focus();
+});
+
+if (localStorage.getItem("theme") === "light") {
+    document.body.classList.add("light");
+    themeToggle.textContent = "☀️";
+}
+
+themeToggle.addEventListener("click", () => {
+    const isLight = document.body.classList.toggle("light");
+    themeToggle.textContent = isLight ? "☀️" : "🌙";
+    localStorage.setItem("theme", isLight ? "light" : "dark");
+});
+
+copyResultBtn.addEventListener("click", async () => {
+    const text = `Fake News Detector Result\n${resultTitle.textContent}\nFake Probability: ${fakeValue.textContent}\nTrue Probability: ${trueValue.textContent}\nConfidence: ${confidenceLine.textContent}`;
+    try {
+        await navigator.clipboard.writeText(text);
+        copyResultBtn.textContent = "✅ Copied!";
+    } catch {
+        copyResultBtn.textContent = "⚠️ Copy failed";
+    }
+    setTimeout(() => copyResultBtn.textContent = "📋 Copy Result", 1500);
+});
+
 
 
 analyzeBtn.addEventListener("click", async () => {
@@ -210,7 +284,7 @@ analyzeBtn.addEventListener("click", async () => {
     }
 
     analyzeBtn.disabled = true;
-    analyzeBtn.innerHTML = "⏳ Analyzing...";
+    analyzeBtn.innerHTML = '<span class="spinner"></span> Analyzing...';
 
     try {
 
@@ -246,6 +320,12 @@ analyzeBtn.addEventListener("click", async () => {
 
         fakeValue.textContent = data.fake_probability.toFixed(2) + "%";
         trueValue.textContent = data.true_probability.toFixed(2) + "%";
+
+        const top = Math.max(data.fake_probability, data.true_probability);
+        let level = "Low";
+        if (top >= 85) level = "High";
+        else if (top >= 65) level = "Medium";
+        confidenceLine.textContent = `Confidence: ${level} (${top.toFixed(2)}%)`;
 
         fakeBar.style.width = data.fake_probability + "%";
         trueBar.style.width = data.true_probability + "%";
@@ -283,6 +363,10 @@ clearBtn.addEventListener("click", () => {
 
     fakeValue.textContent = "0%";
     trueValue.textContent = "0%";
+
+    confidenceLine.textContent = "";
+
+    updateCounts();
 
 });
 
