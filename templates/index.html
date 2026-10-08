@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fake News Detector</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<div class="background-glow glow-one"></div>
+<div class="background-glow glow-two"></div>
+
+<div class="container">
+
+    <!-- HEADER -->
+    <header class="hero">
+        <div class="icon">📰</div>
+
+        <h1>Fake News Detector</h1>
+
+        <p>
+            NLP-Powered Fake &amp; True News Classification
+        </p>
+
+        <div class="badge">
+            🔬 Machine Learning &nbsp;•&nbsp; NLP &nbsp;•&nbsp; Text Classification
+        </div>
+    </header>
+
+
+    <!-- INFORMATION CARDS -->
+    <section class="info-grid">
+
+        <div class="info-card">
+            <div class="card-icon cyan">🧠</div>
+            <div class="card-label">NLP TECHNIQUE</div>
+            <div class="card-value">TF-IDF</div>
+        </div>
+
+        <div class="info-card">
+            <div class="card-icon purple">🤖</div>
+            <div class="card-label">ML MODEL</div>
+            <div class="card-value">Multinomial Naive Bayes</div>
+        </div>
+
+        <div class="info-card">
+            <div class="card-icon green">🎯</div>
+            <div class="card-label">CLASSES</div>
+            <div class="card-value">FAKE / TRUE</div>
+        </div>
+
+    </section>
+
+
+    <!-- MAIN CARD -->
+    <main class="main-card">
+
+        <div class="section-heading">
+            <h2>✍️ Enter News Article</h2>
+            <p>
+                Paste or type the news article you want to analyze.
+            </p>
+        </div>
+
+        <textarea
+            id="newsInput"
+            placeholder="Paste or type a news article here..."
+        ></textarea>
+
+        <div class="button-row">
+
+            <button id="analyzeBtn" class="analyze-btn">
+                🔍 Analyze News
+            </button>
+
+            <button id="clearBtn" class="clear-btn">
+                🗑 Clear
+            </button>
+
+        </div>
+
+        <!-- ERROR -->
+        <div id="errorBox" class="error-box"></div>
+
+        <!-- RESULT -->
+        <div id="resultBox" class="result-box">
+
+            <div id="resultIcon" class="result-icon"></div>
+
+            <div id="resultTitle" class="result-title"></div>
+
+            <div id="resultSubtitle" class="result-subtitle"></div>
+
+            <div class="probability-section">
+
+                <div class="probability-header">
+                    <span>🚨 Fake Probability</span>
+                    <strong id="fakeValue">0%</strong>
+                </div>
+
+                <div class="progress-bg fake-bg">
+                    <div id="fakeBar" class="progress fake-bar"></div>
+                </div>
+
+
+                <div class="probability-header second">
+                    <span>✅ True Probability</span>
+                    <strong id="trueValue">0%</strong>
+                </div>
+
+                <div class="progress-bg true-bg">
+                    <div id="trueBar" class="progress true-bar"></div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- DISCLAIMER -->
+        <div class="disclaimer">
+            ℹ️ <strong>Disclaimer:</strong>
+            This system performs machine-learning classification based
+            on patterns learned from the training dataset. It does not
+            independently verify facts.
+        </div>
+
+    </main>
+
+
+    <!-- HOW IT WORKS -->
+    <section class="how-card">
+
+        <h2>🔎 How It Works</h2>
+
+        <div class="steps">
+
+            <div class="step">
+                <span>01</span>
+                <b>News Input</b>
+                <small>Enter an article</small>
+            </div>
+
+            <div class="arrow">→</div>
+
+            <div class="step">
+                <span>02</span>
+                <b>Preprocessing</b>
+                <small>Clean the text</small>
+            </div>
+
+            <div class="arrow">→</div>
+
+            <div class="step">
+                <span>03</span>
+                <b>TF-IDF</b>
+                <small>Extract features</small>
+            </div>
+
+            <div class="arrow">→</div>
+
+            <div class="step">
+                <span>04</span>
+                <b>Naive Bayes</b>
+                <small>Classify news</small>
+            </div>
+
+        </div>
+
+    </section>
+
+    <footer>
+        Fake News Detection Using NLP &nbsp;•&nbsp; TF-IDF + Multinomial Naive Bayes
+    </footer>
+
+</div>
+
+
+<script>
+
+const input = document.getElementById("newsInput");
+const analyzeBtn = document.getElementById("analyzeBtn");
+const clearBtn = document.getElementById("clearBtn");
+
+const resultBox = document.getElementById("resultBox");
+const resultIcon = document.getElementById("resultIcon");
+const resultTitle = document.getElementById("resultTitle");
+const resultSubtitle = document.getElementById("resultSubtitle");
+
+const fakeBar = document.getElementById("fakeBar");
+const trueBar = document.getElementById("trueBar");
+
+const fakeValue = document.getElementById("fakeValue");
+const trueValue = document.getElementById("trueValue");
+
+const errorBox = document.getElementById("errorBox");
+
+
+analyzeBtn.addEventListener("click", async () => {
+
+    const news = input.value.trim();
+
+    errorBox.style.display = "none";
+
+    if (!news) {
+        errorBox.textContent = "⚠️ Please enter a news article first.";
+        errorBox.style.display = "block";
+        return;
+    }
+
+    analyzeBtn.disabled = true;
+    analyzeBtn.innerHTML = "⏳ Analyzing...";
+
+    try {
+
+        const response = await fetch("/predict", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                news: news
+            })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.error || "Something went wrong.");
+        }
+
+        resultBox.className = "result-box show " + data.status;
+
+        if (data.status === "fake") {
+            resultIcon.textContent = "⚠️";
+            resultTitle.textContent = "FAKE NEWS";
+            resultSubtitle.innerHTML =
+                "The model classified this article as <b>FAKE</b>.";
+        } else {
+            resultIcon.textContent = "✅";
+            resultTitle.textContent = "TRUE NEWS";
+            resultSubtitle.innerHTML =
+                "The model classified this article as <b>TRUE</b>.";
+        }
+
+        fakeValue.textContent = data.fake_probability.toFixed(2) + "%";
+        trueValue.textContent = data.true_probability.toFixed(2) + "%";
+
+        fakeBar.style.width = data.fake_probability + "%";
+        trueBar.style.width = data.true_probability + "%";
+
+        resultBox.scrollIntoView({
+            behavior: "smooth",
+            block: "nearest"
+        });
+
+    } catch (error) {
+
+        errorBox.textContent = "⚠️ " + error.message;
+        errorBox.style.display = "block";
+
+    } finally {
+
+        analyzeBtn.disabled = false;
+        analyzeBtn.innerHTML = "🔍 Analyze News";
+
+    }
+
+});
+
+
+clearBtn.addEventListener("click", () => {
+
+    input.value = "";
+
+    resultBox.className = "result-box";
+
+    errorBox.style.display = "none";
+
+    fakeBar.style.width = "0%";
+    trueBar.style.width = "0%";
+
+    fakeValue.textContent = "0%";
+    trueValue.textContent = "0%";
+
+});
+
+
+input.addEventListener("keydown", (event) => {
+
+    if (event.ctrlKey && event.key === "Enter") {
+        analyzeBtn.click();
+    }
+
+});
+
+</script>
+
+</body>
+</html>
